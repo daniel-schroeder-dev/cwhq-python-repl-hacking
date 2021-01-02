@@ -14,11 +14,6 @@
 <body>
   <script type="text/javascript">
 
-    /*
-    *   Issues:
-    *   1. Lists, dicts, and tups show up as strings if you print() them. (you shouldn't do that!)
-    */
-
     const multilineMode = {
       enabled: false,
       mode: null,
@@ -59,13 +54,17 @@
       }
     }
 
-
+    /*
+    *   This tests against numbers, booleans, lists, tuples, and dicts only! Everything
+    *   else will be considered to be a string.
+    */
     function isString(formattedOut) {
       if (isNaN(+formattedOut) && (formattedOut !== "True" && formattedOut !== "False")) {
-        return true;
-      } else {
-        return false;
+        if (!formattedOut.match(/^[\[\({]/) && !formattedOut.match(/[\]\)}]$/)) {
+          return true;
+        }
       }
+      return false;
     }
 
 
@@ -115,8 +114,7 @@
           formattedOut = out.join("\n");
         }
         /*
-        *   Make to not add '' around numbers or booleans. We could add more checks here
-        *   for dicts, tuples, and lists as well. TODO!!!
+        *   Make sure to not add '' around this that aren't strings.
         */
         if (isString(formattedOut)) {
           term.echo(`'${formattedOut}'`);
