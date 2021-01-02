@@ -26,6 +26,9 @@
       mode: null,
     };
 
+    const ML_FUNC = "ML_FUNC";
+    const ML_STRUCT = "ML_STRUCT";
+
     // var multilineModeEnabled = false;
     const multilineGutter = "\n...\t\t";
 
@@ -46,13 +49,13 @@
         */
         let templine = line.replaceAll(/:\s+/g, ":");
         if (templine.slice(-1) === ":") {
-          return true;
+          return ML_FUNC;
         }
       } else if (line.match(/=\s[{\[\(]/)) {
         console.log("multiline dict, tup, or array");
-        return true;
+        return ML_STRUCT;
       } else {
-        return false;
+        return null;
       }
     }
 
@@ -178,7 +181,11 @@
               this.insert(multilineGutter);
             }
           } else {
-            multilineMode.enabled = checkForMultiline(line);
+            const ML_SET = checkForMultiline(line);
+            if (ML_SET) {
+              multilineMode.enabled = true;
+              multilineMode.mode = ML_SET;
+            }
             if (multilineMode.enabled) {
               /*
               *   This just sticks the gutter in and delays processing until we exit
