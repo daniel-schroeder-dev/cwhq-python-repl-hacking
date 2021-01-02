@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://unpkg.com/jquery.terminal@2.x.x/js/jquery.terminal.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/jquery.terminal@2.x.x/css/jquery.terminal.min.css"/>
+</head>
+<body>
+  <script type="text/javascript">
+
+    var multilineModeEnabled = false;
+    const multilineGutter = "\n...\t\t";
+
+    let outputLines = [];
+    let lastOut = "";
+
+    function checkForMultiline(line) {
+      /*
+      *   If we're possibly about to start a mutliline statement (def, if, for, etc...).
+      */
+      if (line.includes(":")) {
+        /*
+        *   Remove trailing whitespace to make sure the last thing is ":".
+        */
+        let templine = line.replaceAll(/:\s+/g, ":");
+        if (templine.slice(-1) === ":") {
+          return true;
+        }
+      }
+      return false;
+    }
+
+
+    function runIt(term, code) {
+     
+      let retVal;
+
+      try {
+        retVal = pyodide.runPython(code);
+      } catch (e) {
+        term.set_prompt("[[;#fc0303;]>>> ]")
+        term.echo(`[[;red;]${e.message}]`)
+        return;
+      }
+
+      term.set_prompt("[[;#00d0ff;]>>> ]")
+
+      if (retVal === undefined) {
+        /*
+        *   Pull from stdout if nothing came back from pyodide.runPython().
+        */
+        let out = pyodide.runPython("sys.stdout.getvalue()")
+        /*
+        *   Don't bother if it's the same output from last time.
+        */
+        if (out === lastOut) return;
+        lastOut = out;
+        /*
+        *   Make an array of the lines.
+        */
+        out = out.split("\n")
+        /*
+        *   There will be a weird last element that's empty sometimes, so remove it.
+        */
+        if (out[out.length - 1] === "") {
+          out.pop()
+        }
+        /*
+        *   If there's a last element in the outputLines array, we can use it to create
+        *   a diff with the out array from sys.stdout. We'll show only the new elements
+        *   that will be pushed into outputLines.
+        */
+        if (outputLines.slice(-1)[0] !== undefined) {
+          term.echo(out.slice(outputLines.slice(-1)[0].length).join("\n"))
+        } else {
+          term.echo(out.join("\n"))
+        }
+        outputLines.push(out)
+      } else if (Array.isArray(retVal)) {
+        /*
+        *   Execution only seems to get here if you type a single-line tuple or array.
+        */
+        const tupleOrArray = JSON.stringify(retVal);
+        /*
+        *   Checks the original entered line to determine if it's a tuple or array.
+        */
+        if (code.includes("[")) {
+          term.echo(tupleOrArray);
+        } else {
+          let tuple = tupleOrArray.replace("[", "(");
+          tuple = tuple.replace("]", ")");
+          term.echo(tuple);
+        }
+      } else if (typeof retVal === "object" && retVal !== null) {
+        /*
+        *   This handles dicts.
+        */
+        term.echo(JSON.stringify(retVal));
+      } else if (typeof retVal === "string")  {
+        /*
+        *   Add the '' for string output.
+        */
+        term.echo(`'${retVal}'`);
+      } else {
+        term.echo(retVal);
+      }
+    }
+
+    const term = $('body').terminal(function(line) {
+      /*
+      *   Remove the ... if it's there. This happens after multiline mode has
+      *   been enabled.
+      */
+      line = line.replaceAll(/\.{3}/g, "")
+      /*
+      *   For whatever reason, it gets mad about type() if I don't do this...
+      */
+      if (line.includes("type")) {
+        line = "print(" + line + ")";
+      } else if (line.match(/^\w+\(.*\)?/) && !line.match(/^print\(.*\)?/)) {
+        /*
+        * If it's a single-line function call, let's get the return value if there is one.
+        */
+        line = `r_val = ${line}\nif r_val is not None:\n\tprint(r_val)`;
+      }
+      runIt(term, line);
+      }, {
+      keymap: {
+        /*
+        *   This allows me to do multi-line stuff by capturing the line when
+        *   'enter' is pressed. You have to call original() to fire off the
+        *   callback function for the terminal(). We don't want to do that
+        *   until the user has two consecutive enters.
+        */
+        ENTER: function(e, original) {
+          line = this.get_command();
+          if (multilineModeEnabled) {
+            /*
+            *   We captured the 'enter' key, so to get the regex right we have
+            *   to spoof adding in the newline.
+            */
+            let tempLine = line + "\n";
+            if (tempLine.match(/(\.{3}\s+\n){2}/gm)) {
+              multilineModeEnabled = false;
+              /*
+              *   This will run the callback to terminal() and then the entire 
+              *   statement will be passed in for processing.
+              */
+              return original();
+            } else {
+              this.insert(multilineGutter);
+            }
+          } else {
+            multilineModeEnabled = checkForMultiline(line);
+            if (multilineModeEnabled) {
+              /*
+              *   This just sticks the gutter in and delays processing until we exit
+              *   the mutliline statement.
+              */
+              this.insert(multilineGutter)
+            } else {
+              /*
+              *   This will run the callback to terminal().
+              */
+              original();
+            }
+          }
+        }
+      },
+      prompt: "[[;#00d0ff;]>>> ]",
+    });
+
+    languagePluginLoader.then(() => {
+      term.echo(pyodide.runPython('import sys, io\nsys.version\n'));
+      pyodide.runPython('sys.stdout = io.StringIO()')
+    });
+
+  </script>
+</body>
+</html>
