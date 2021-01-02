@@ -21,10 +21,12 @@
 
     const ML_FUNC = "ML_FUNC";
     const ML_STRUCT = "ML_STRUCT";
+    const ML_QUOTE = "ML_QUOTE";
 
     // var multilineModeEnabled = false;
     const multilineFuncGutter = "\n...\t\t";
     const multilineStructGutter = "\n... ";
+    const multilineQuoteGutter = "\n";
 
     let outputLines = [];
     let lastOut = "";
@@ -49,6 +51,8 @@
           return null;
         }
         return ML_STRUCT;
+      } else if (line.includes(`"""`)) {
+        return ML_QUOTE
       } else {
         return null;
       }
@@ -120,7 +124,17 @@
         *   Make sure to not add '' around this that aren't strings.
         */
         if (isString(formattedOut)) {
-          term.echo(`'${formattedOut}'`);
+          if (formattedOut.indexOf('\n') == -1) {
+            /*
+            * output includes no newline characters
+            */
+            term.echo(`'${formattedOut}'`);
+          } else {
+            /*
+            * output includes newline characters
+            */
+            term.echo(`"""${formattedOut}"""`)
+          }
         } else {
           term.echo(formattedOut);
         }
@@ -171,7 +185,7 @@
       *   For whatever reason, it gets mad about type() if I don't do this...
       */
       if (line.includes("type")) {
-        line = "print(" + line + ")";
+        line = `print(${line})`;
       } else if (line.match(/^\w+\(.*\)?/) && !line.match(/^print\(.*\)?/)) {
         /*
         * If it's a single-line function call, let's get the return value if there is one.
@@ -183,13 +197,8 @@
         *   If this is a single-line print statement, just execute it.
         */
         // line = `${}`
-      } else if (line.match(/^\w+$/m)) {
-        /*
-        *   If the line is just a variable name, make the 'line' a print statement
-        *   in Python.
-        */
-        line = `print(${line})`;
       }
+      
       runIt(term, line);
       }, {
       keymap: {
@@ -202,35 +211,48 @@
         ENTER: function(e, original) {
           line = this.get_command();
           if (multilineMode.enabled) {
-            if (multilineMode.mode === ML_FUNC) {
-              /*
-              *   We captured the 'enter' key, so to get the regex right we have
-              *   to spoof adding in the newline.
-              */
-              let tempLine = line + "\n";
-              if (tempLine.match(/(\.{3}\s+\n){2}/gm)) {
-                multilineMode.enabled = false;
+            switch (multilineMode.mode) {
+              case ML_FUNC:
                 /*
-                *   This will run the callback to terminal() and then the entire 
-                *   statement will be passed in for processing.
+                *   We captured the 'enter' key, so to get the regex right we have
+                *   to spoof adding in the newline.
                 */
-                return original();
-              } else {
-                this.insert(multilineFuncGutter);
-              }
-            } else if (multilineMode.mode === ML_STRUCT) {
-              if (line.match(/[}\]\)]$/)) {
-                /*
-                *   Matches the closing brace of a dict, list, or tup and ends multiline
-                *   mode.
-                */
-                multilineMode.enabled = false;
-                return original();
-              } else {
-                this.insert(multilineStructGutter);
-              }
+                let tempLine = line + "\n";
+                if (tempLine.match(/(\.{3}\s+\n){2}/gm)) {
+                  multilineMode.enabled = false;
+                  /*
+                  *   This will run the callback to terminal() and then the entire 
+                  *   statement will be passed in for processing.
+                  */
+                  return original();
+                } else {
+                  this.insert(multilineFuncGutter);
+                }
+
+                break;
+              case ML_STRUCT:
+                if (line.match(/[}\]\)]$/)) {
+                  /*
+                  *   Matches the closing brace of a dict, list, or tup and ends multiline
+                  *   mode.
+                  */
+                  multilineMode.enabled = false;
+                  return original();
+                } else {
+                  this.insert(multilineStructGutter);
+                }
+                break;
+              case ML_QUOTE:
+                const lines = line.split("\n")
+
+                if (lines[lines.length-1].includes(`"""`)) {
+                  multilineMode.enabled = false;
+                  return original();
+                } else {
+                  this.insert(multilineQuoteGutter)
+                }
+                break;     
             }
-            
           } else {
             const ML_SET = checkForMultiline(line);
             if (ML_SET) {
@@ -242,10 +264,16 @@
               *   This just sticks the gutter in and delays processing until we exit
               *   the mutliline statement.
               */
-              if (multilineMode.mode === ML_FUNC) {
-                this.insert(multilineFuncGutter);
-              } else if (multilineMode.mode === ML_STRUCT) {
-                this.insert(multilineStructGutter);
+              switch (multilineMode.mode) {
+                case ML_FUNC:
+                  this.insert(multilineFuncGutter);
+                  break;
+                case ML_STRUCT:
+                  this.insert(multilineStructGutter);
+                  break
+                case ML_QUOTE:
+                  this.insert(multilineQuoteGutter);
+                  break
               }
             } else {
               /*
