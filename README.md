@@ -10,6 +10,10 @@ It's just an HTML file, so download `index.html` to your machine and you're read
 
 It's a Python REPL, so use it like you would any other REPL. There's a live version running [here](https://daniel-schroeder-dev.github.io/cwhq-python-repl-hacking/) if you'd like to play around with it!
 
+Here's me demonstrating a few of the basics:
+
+![REPL example gif](repl-example.gif)
+
 ## Issues
 
 `for` statements have quotes around them.
