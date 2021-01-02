@@ -19,6 +19,8 @@
     *   1. We need multi-line support for dicts, lists, tuples. I think it's easiest
     *   to deal with this in the context of an assignment statement first. Then, I 
     *   can do a solo multi-line dict, list, or tup.
+    *   2. The '' isn't showing up for strings returned from single-statement func calls.
+    *   3. Booleans are lowercase (true, false).
     */
 
     const multilineMode = {
@@ -177,6 +179,14 @@
                 *   This will run the callback to terminal() and then the entire 
                 *   statement will be passed in for processing.
                 */
+                return original();
+              } else {
+                this.insert(multilineGutter);
+              }
+            } else if (multilineMode.mode === ML_STRUCT) {
+              console.log(line)
+              if (line.match(/[}\]\)]$/)) {
+                multilineMode.enabled = false;
                 return original();
               } else {
                 this.insert(multilineGutter);
