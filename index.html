@@ -17,7 +17,6 @@
     /*
     *   Issues:
     *   1. Lists, dicts, and tups show up as strings if you print() them. (you shouldn't do that!)
-    *   2. When you store an lists in a variable and log it, it doesn't show up right.
     */
 
     const multilineMode = {
@@ -174,6 +173,12 @@
         *   If this is a single-line print statement, just execute it.
         */
         // line = `${}`
+      } else if (line.match(/^\w+$/m)) {
+        /*
+        *   If the line is just a variable name, make the 'line' a print statement
+        *   in Python.
+        */
+        line = `print(${line})`;
       }
       runIt(term, line);
       }, {
