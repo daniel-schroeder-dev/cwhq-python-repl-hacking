@@ -17,8 +17,7 @@
     /*
     *   Issues:
     *   1. Lists, dicts, and tups show up as strings if you print() them. (you shouldn't do that!)
-    *   2. Booleans are lowercase (true, false).
-    *   3. When you store an array in a variable and log it, it doesn't show up right.
+    *   2. When you store an lists in a variable and log it, it doesn't show up right.
     */
 
     const multilineMode = {
@@ -107,7 +106,11 @@
         } else {
           formattedOut = out.join("\n");
         }
-        if (isNaN(+formattedOut)) {
+        /*
+        *   Make to not add '' around numbers or booleans. We could add more checks here
+        *   for dicts, tuples, and lists as well. TODO!!!
+        */
+        if (isNaN(+formattedOut) && (formattedOut !== "True" && formattedOut !== "False")) {
           term.echo(`'${formattedOut}'`);
         } else {
           term.echo(formattedOut);
@@ -138,7 +141,13 @@
         *   Add the '' for string output.
         */
         term.echo(`'${retVal}'`);
-      } else {
+      } else if (typeof retVal === "boolean") {
+        /*
+        *   Capitalize first character of boolean.
+        */
+        let temp = retVal.toString();
+        term.echo(temp[0].toUpperCase() + temp.slice(1));
+      }else {
         term.echo(retVal);
       }
     }
