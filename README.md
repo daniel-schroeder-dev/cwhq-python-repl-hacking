@@ -16,7 +16,7 @@ Here's me demonstrating a few of the basics:
 
 ## Issues
 
-`for` statements have quotes around them.
+No known issues at this time, but I'm sure there are some so let me know if you find any!
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
