@@ -39,7 +39,6 @@
     function checkForMultiline(line) {
       /*
       *   If we're possibly about to start a mutliline statement (def, if, for, etc...).
-      *   We need to account for multi-line lists, tuples, and dicts though!
       */
       if (line.includes(":")) {
         /*
@@ -50,6 +49,9 @@
           return ML_FUNC;
         }
       } else if (line.match(/=\s[{\[\(]/) || line.match(/^[{\[\(]$/)) {
+        /*
+        *   Make sure we aren't trying to create a single-line dict, tup, or list.
+        */
         if (line.match(/=\s[{\[\(].*[\]}\)]$/)) {
           return null;
         }
@@ -183,6 +185,10 @@
               }
             } else if (multilineMode.mode === ML_STRUCT) {
               if (line.match(/[}\]\)]$/)) {
+                /*
+                *   Matches the closing brace of a dict, list, or tup and ends multiline
+                *   mode.
+                */
                 multilineMode.enabled = false;
                 return original();
               } else {
