@@ -16,7 +16,7 @@
 
     /*
     *   Issues:
-    *   1. The '' isn't showing up for strings returned from single-statement func calls.
+    *   1. Lists, dicts, and tups show up as strings if you print() them. (you shouldn't do that!)
     *   2. Booleans are lowercase (true, false).
     *   3. When you store an array in a variable and log it, it doesn't show up right.
     */
@@ -101,10 +101,16 @@
         *   a diff with the out array from sys.stdout. We'll show only the new elements
         *   that will be pushed into outputLines.
         */
+        let formattedOut = '';
         if (outputLines.slice(-1)[0] !== undefined) {
-          term.echo(out.slice(outputLines.slice(-1)[0].length).join("\n"))
+          formattedOut = out.slice(outputLines.slice(-1)[0].length).join("\n");
         } else {
-          term.echo(out.join("\n"))
+          formattedOut = out.join("\n");
+        }
+        if (isNaN(+formattedOut)) {
+          term.echo(`'${formattedOut}'`);
+        } else {
+          term.echo(formattedOut);
         }
         outputLines.push(out)
       } else if (Array.isArray(retVal)) {
@@ -154,6 +160,11 @@
         * TODO: add support for strings here, right now there are no '' around them
         */
         line = `r_val = ${line}\nif r_val is not None:\n\tprint(r_val)`;
+      } else if (line.match(/^print\(.*\)?/)) {
+        /*
+        *   If this is a single-line print statement, just execute it.
+        */
+        // line = `${}`
       }
       runIt(term, line);
       }, {
