@@ -8,16 +8,11 @@ It's just an HTML file, so download `index.html` to your machine and you're read
 
 ## Usage
 
-It's a Python REPL, so use it like you would any other REPL. Several things don't work yet, as documented below in [Issues](issues).
+It's a Python REPL, so use it like you would any other REPL. There's a live version running [here](https://daniel-schroeder-dev.github.io/cwhq-python-repl-hacking/) if you'd like to play around with it!
 
 ## Issues
 
-
-1. The '' isn't showing up for strings returned from single-statement func calls.
-2. Booleans are lowercase (true, false).
-3. When you store an array in a variable and log it, it doesn't show up right.
-
-I'm sure there are many more issues, so if you find one, please let me know!
+`for` statements have quotes around them.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
