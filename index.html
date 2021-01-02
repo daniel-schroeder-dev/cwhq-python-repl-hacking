@@ -50,6 +50,9 @@
           return ML_FUNC;
         }
       } else if (line.match(/=\s[{\[\(]/) || line.match(/^[{\[\(]$/)) {
+        if (line.match(/=\s[{\[\(].*[\]}\)]$/)) {
+          return null;
+        }
         return ML_STRUCT;
       } else {
         return null;
