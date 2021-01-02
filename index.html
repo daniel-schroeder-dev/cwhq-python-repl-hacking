@@ -56,12 +56,15 @@
 
     /*
     *   This tests against numbers, booleans, lists, tuples, and dicts only! Everything
-    *   else will be considered to be a string.
+    *   else will be considered to be a string. If 'formattedOut' is mutliline, it will
+    *   not be printed with quotes.
     */
     function isString(formattedOut) {
       if (isNaN(+formattedOut) && (formattedOut !== "True" && formattedOut !== "False")) {
         if (!formattedOut.match(/^[\[\({]/) && !formattedOut.match(/[\]\)}]$/)) {
-          return true;
+          if (formattedOut.split("\n").length === 1) {
+            return true;
+          }
         }
       }
       return false;
