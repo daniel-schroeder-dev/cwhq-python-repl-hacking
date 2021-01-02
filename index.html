@@ -21,6 +21,7 @@
     *   can do a solo multi-line dict, list, or tup.
     *   2. The '' isn't showing up for strings returned from single-statement func calls.
     *   3. Booleans are lowercase (true, false).
+    *   4. When you store an array in a variable and log it, it doesn't show up right.
     */
 
     const multilineMode = {
@@ -32,13 +33,11 @@
     const ML_STRUCT = "ML_STRUCT";
 
     // var multilineModeEnabled = false;
-    const multilineGutter = "\n...\t\t";
+    const multilineFuncGutter = "\n...\t\t";
+    const multilineStructGutter = "\n... ";
 
     let outputLines = [];
     let lastOut = "";
-
-
-
 
     function checkForMultiline(line) {
       /*
@@ -181,15 +180,14 @@
                 */
                 return original();
               } else {
-                this.insert(multilineGutter);
+                this.insert(multilineFuncGutter);
               }
             } else if (multilineMode.mode === ML_STRUCT) {
-              console.log(line)
               if (line.match(/[}\]\)]$/)) {
                 multilineMode.enabled = false;
                 return original();
               } else {
-                this.insert(multilineGutter);
+                this.insert(multilineStructGutter);
               }
             }
             
@@ -204,7 +202,11 @@
               *   This just sticks the gutter in and delays processing until we exit
               *   the mutliline statement.
               */
-              this.insert(multilineGutter)
+              if (multilineMode.mode === ML_FUNC) {
+                this.insert(multilineFuncGutter);
+              } else if (multilineMode.mode === ML_STRUCT) {
+                this.insert(multilineStructGutter);
+              }
             } else {
               /*
               *   This will run the callback to terminal().
