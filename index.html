@@ -52,8 +52,7 @@
         if (templine.slice(-1) === ":") {
           return ML_FUNC;
         }
-      } else if (line.match(/=\s[{\[\(]/)) {
-        console.log("multiline dict, tup, or array");
+      } else if (line.match(/=\s[{\[\(]/) || line.match(/^[{\[\(]$/)) {
         return ML_STRUCT;
       } else {
         return null;
