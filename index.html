@@ -18,6 +18,7 @@
     function checkForMultiline(line) {
       /*
       *   If we're possibly about to start a mutliline statement (def, if, for, etc...).
+      *   We need to account for multi-line lists, tuples, and dicts though!
       */
       if (line.includes(":")) {
         /*
