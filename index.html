@@ -165,21 +165,24 @@
         ENTER: function(e, original) {
           line = this.get_command();
           if (multilineMode.enabled) {
-            /*
-            *   We captured the 'enter' key, so to get the regex right we have
-            *   to spoof adding in the newline.
-            */
-            let tempLine = line + "\n";
-            if (tempLine.match(/(\.{3}\s+\n){2}/gm)) {
-              multilineMode.enabled = false;
+            if (multilineMode.mode === ML_FUNC) {
               /*
-              *   This will run the callback to terminal() and then the entire 
-              *   statement will be passed in for processing.
+              *   We captured the 'enter' key, so to get the regex right we have
+              *   to spoof adding in the newline.
               */
-              return original();
-            } else {
-              this.insert(multilineGutter);
+              let tempLine = line + "\n";
+              if (tempLine.match(/(\.{3}\s+\n){2}/gm)) {
+                multilineMode.enabled = false;
+                /*
+                *   This will run the callback to terminal() and then the entire 
+                *   statement will be passed in for processing.
+                */
+                return original();
+              } else {
+                this.insert(multilineGutter);
+              }
             }
+            
           } else {
             const ML_SET = checkForMultiline(line);
             if (ML_SET) {
