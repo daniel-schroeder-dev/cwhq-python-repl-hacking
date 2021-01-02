@@ -60,6 +60,15 @@
     }
 
 
+    function isString(formattedOut) {
+      if (isNaN(+formattedOut) && (formattedOut !== "True" && formattedOut !== "False")) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+
     function runIt(term, code) {
      
       let retVal;
@@ -109,7 +118,7 @@
         *   Make to not add '' around numbers or booleans. We could add more checks here
         *   for dicts, tuples, and lists as well. TODO!!!
         */
-        if (isNaN(+formattedOut) && (formattedOut !== "True" && formattedOut !== "False")) {
+        if (isString(formattedOut)) {
           term.echo(`'${formattedOut}'`);
         } else {
           term.echo(formattedOut);
