@@ -14,11 +14,26 @@
 <body>
   <script type="text/javascript">
 
-    var multilineModeEnabled = false;
+    /*
+    *   Issues:
+    *   1. We need multi-line support for dicts, lists, tuples. I think it's easiest
+    *   to deal with this in the context of an assignment statement first. Then, I 
+    *   can do a solo multi-line dict, list, or tup.
+    */
+
+    const multilineMode = {
+      enabled: false,
+      mode: null,
+    };
+
+    // var multilineModeEnabled = false;
     const multilineGutter = "\n...\t\t";
 
     let outputLines = [];
     let lastOut = "";
+
+
+
 
     function checkForMultiline(line) {
       /*
@@ -33,8 +48,12 @@
         if (templine.slice(-1) === ":") {
           return true;
         }
+      } else if (line.match(/=\s[{\[\(]/)) {
+        console.log("multiline dict, tup, or array");
+        return true;
+      } else {
+        return false;
       }
-      return false;
     }
 
 
@@ -127,6 +146,7 @@
       } else if (line.match(/^\w+\(.*\)?/) && !line.match(/^print\(.*\)?/)) {
         /*
         * If it's a single-line function call, let's get the return value if there is one.
+        * TODO: add support for strings here, right now there are no '' around them
         */
         line = `r_val = ${line}\nif r_val is not None:\n\tprint(r_val)`;
       }
@@ -141,14 +161,14 @@
         */
         ENTER: function(e, original) {
           line = this.get_command();
-          if (multilineModeEnabled) {
+          if (multilineMode.enabled) {
             /*
             *   We captured the 'enter' key, so to get the regex right we have
             *   to spoof adding in the newline.
             */
             let tempLine = line + "\n";
             if (tempLine.match(/(\.{3}\s+\n){2}/gm)) {
-              multilineModeEnabled = false;
+              multilineMode.enabled = false;
               /*
               *   This will run the callback to terminal() and then the entire 
               *   statement will be passed in for processing.
@@ -158,8 +178,8 @@
               this.insert(multilineGutter);
             }
           } else {
-            multilineModeEnabled = checkForMultiline(line);
-            if (multilineModeEnabled) {
+            multilineMode.enabled = checkForMultiline(line);
+            if (multilineMode.enabled) {
               /*
               *   This just sticks the gutter in and delays processing until we exit
               *   the mutliline statement.
