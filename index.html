@@ -176,7 +176,7 @@
       *   Remove the ... if it's there. This happens after multiline mode has
       *   been enabled.
       */
-      line = line.replaceAll(/\.{3}/g, "")
+      line = line.replaceAll(/\.{3}\s{1}/g, "")
       /*
       *   For whatever reason, it gets mad about type() if I don't do this...
       */
@@ -188,7 +188,7 @@
         * TODO: add support for strings here, right now there are no '' around them
         */
         line = `r_val = ${line}\nif r_val is not None:\n\tprint(r_val)`;
-      } else if (line.match(/^\w+$/m) && multilineMode.mode != ML_QUOTE) {
+      } else if (line.match(/^\w+$/)) {
          /*
         *   If the line is just a variable name, make the 'line' a print statement
         *   in Python.
