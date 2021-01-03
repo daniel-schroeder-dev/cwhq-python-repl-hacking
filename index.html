@@ -151,12 +151,12 @@
       } else if (typeof retVal === "string")  {
         if (retVal.indexOf('\n') == -1) {
             /*
-            * output includes no newline characters
+            * Output includes no newline characters.
             */
             term.echo(`'${retVal}'`);
           } else {
             /*
-            * output includes newline characters
+            * Output includes newline characters.
             */
             term.echo(`"""${retVal}"""`)
           }
@@ -240,7 +240,7 @@
             } else if (multilineMode.mode == ML_QUOTE) {
               const lines = line.split("\n")
               const lastLine = lines[lines.length-1]
-
+              
               if (lastLine.includes(`"""`) || lastLine.includes(`'''`)) {
                 multilineMode.enabled = false;
                 multilineMode.mode = null;
