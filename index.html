@@ -26,7 +26,7 @@
     // var multilineModeEnabled = false;
     const multilineFuncGutter = "\n...\t\t";
     const multilineStructGutter = "\n... ";
-    const multilineQuoteGutter = "\n...";
+    const multilineQuoteGutter = "\n... ";
 
     let outputLines = [];
     let lastOut = "";
@@ -51,7 +51,7 @@
           return null;
         }
         return ML_STRUCT;
-      } else if (line.includes(`"""`)) {
+      } else if (line.includes(`"""`) || line.includes(`'''`)) {
         return ML_QUOTE
       } else {
         return null;
@@ -245,8 +245,9 @@
               }
             } else if (multilineMode.mode == ML_QUOTE) {
               const lines = line.split("\n")
+              const lastLine = lines[lines.length-1]
 
-              if (lines[lines.length-1].includes(`"""`)) {
+              if (lastLine.includes(`"""`) || lastLine.includes(`'''`)) {
                 multilineMode.enabled = false;
                 multilineMode.mode = null;
                 return original();
