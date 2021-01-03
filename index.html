@@ -23,7 +23,6 @@
     const ML_STRUCT = "ML_STRUCT";
     const ML_QUOTE = "ML_QUOTE";
 
-    // var multilineModeEnabled = false;
     const multilineFuncGutter = "\n...\t\t";
     const multilineStructGutter = "\n... ";
     const multilineQuoteGutter = "\n... ";
@@ -189,11 +188,6 @@
         * TODO: add support for strings here, right now there are no '' around them
         */
         line = `r_val = ${line}\nif r_val is not None:\n\tprint(r_val)`;
-      } else if (line.match(/^print\(.*\)?/)) {
-        /*
-        *   If this is a single-line print statement, just execute it.
-        */
-        // line = `${}`
       } else if (line.match(/^\w+$/m) && multilineMode.mode != ML_QUOTE) {
          /*
         *   If the line is just a variable name, make the 'line' a print statement
