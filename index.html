@@ -214,15 +214,15 @@
         ENTER: function(e, original) {
           line = this.get_command();
           if (multilineMode.enabled) {
-            switch (multilineMode.mode) {
-              case ML_FUNC:
-                /*
+            if (multilineMode.mode == ML_FUNC) {
+              /*
                 *   We captured the 'enter' key, so to get the regex right we have
                 *   to spoof adding in the newline.
                 */
                 let tempLine = line + "\n";
                 if (tempLine.match(/(\.{3}\s+\n){2}/gm)) {
                   multilineMode.enabled = false;
+                  multilineMode.mode = null;
                   /*
                   *   This will run the callback to terminal() and then the entire 
                   *   statement will be passed in for processing.
@@ -231,30 +231,28 @@
                 } else {
                   this.insert(multilineFuncGutter);
                 }
-
-                break;
-              case ML_STRUCT:
-                if (line.match(/[}\]\)]$/)) {
+            } else if (multilineMode.mode == ML_STRUCT) {
+              if (line.match(/[}\]\)]$/)) {
                   /*
                   *   Matches the closing brace of a dict, list, or tup and ends multiline
                   *   mode.
                   */
                   multilineMode.enabled = false;
+                  multilineMode.mode = null;
                   return original();
-                } else {
-                  this.insert(multilineStructGutter);
-                }
-                break;
-              case ML_QUOTE:
-                const lines = line.split("\n")
+              } else {
+                this.insert(multilineStructGutter);
+              }
+            } else if (multilineMode.mode == ML_QUOTE) {
+              const lines = line.split("\n")
 
-                if (lines[lines.length-1].includes(`"""`)) {
-                  multilineMode.enabled = false;
-                  return original();
-                } else {
-                  this.insert(multilineQuoteGutter)
-                }
-                break;     
+              if (lines[lines.length-1].includes(`"""`)) {
+                multilineMode.enabled = false;
+                multilineMode.mode = null;
+                return original();
+              } else {
+                this.insert(multilineQuoteGutter)
+              }
             }
           } else {
             const ML_SET = checkForMultiline(line);
