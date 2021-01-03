@@ -124,17 +124,7 @@
         *   Make sure to not add '' around this that aren't strings.
         */
         if (isString(formattedOut)) {
-          if (formattedOut.indexOf('\n') == -1) {
-            /*
-            * output includes no newline characters
-            */
-            term.echo(`'${formattedOut}'`);
-          } else {
-            /*
-            * output includes newline characters
-            */
-            term.echo(`"""${formattedOut}"""`)
-          }
+          term.echo(`'${formattedOut}'`)
         } else {
           term.echo(formattedOut);
         }
@@ -160,10 +150,17 @@
         */
         term.echo(JSON.stringify(retVal));
       } else if (typeof retVal === "string")  {
-        /*
-        *   Add the '' for string output.
-        */
-        term.echo(`'${retVal}'`);
+        if (retVal.indexOf('\n') == -1) {
+            /*
+            * output includes no newline characters
+            */
+            term.echo(`'${retVal}'`);
+          } else {
+            /*
+            * output includes newline characters
+            */
+            term.echo(`"""${retVal}"""`)
+          }
       } else if (typeof retVal === "boolean") {
         /*
         *   Capitalize first character of boolean.
