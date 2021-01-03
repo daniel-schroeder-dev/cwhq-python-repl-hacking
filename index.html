@@ -194,6 +194,12 @@
         *   If this is a single-line print statement, just execute it.
         */
         // line = `${}`
+      } else if (line.match(/^\w+$/m) && multilineMode.mode != ML_QUOTE) {
+         /*
+        *   If the line is just a variable name, make the 'line' a print statement
+        *   in Python.
+        */
+        line = `print(${line})`;
       }
       
       runIt(term, line);
