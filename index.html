@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+  
 <script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.16.1/full/pyodide.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://unpkg.com/jquery.terminal@2.x.x/js/jquery.terminal.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/jquery.terminal@2.x.x/css/jquery.terminal.min.css"/>
+
+<script src="https://unpkg.com/prismjs/prism.js"></script>
+<script src="https://unpkg.com/prismjs@1.23.0/components/prism-python.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism.css"></script>
+
+<script src="https://unpkg.com/jquery.terminal/js/prism.js"></script>
+
 <style type="text/css">
   .terminal {
     --size: 2;
@@ -286,6 +294,8 @@
     languagePluginLoader.then(() => {
       term.echo(pyodide.runPython('import sys, io\nsys.version\n'));
       pyodide.runPython('sys.stdout = io.StringIO()')
+
+      $.terminal.syntax('python')
     });
 
   </script>
